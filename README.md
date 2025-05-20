@@ -9,6 +9,12 @@ This repository contains both a standard Lua version (Lua 5.2+ or LuaJIT) and a 
 
 ## Usage
 
+`llz4` can be installed from [LuaRocks](https://luarocks.org):
+```
+luarocks install llz4
+```
+
+Then:
 ```lua
 local llz4 = require("llz4")
 
