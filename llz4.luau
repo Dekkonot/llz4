@@ -93,7 +93,7 @@ local function compressBuffer(data, dataStart, dataLen, acceleration)
 			local matchOffset = pos - matchPos
 
 			-- Try to extend backwards
-			while literalCount > 0 and buffer.readu8(data, pos - 1) == buffer.readu8(data, matchPos - 1) do
+			while literalCount > 0 and matchPos > 0 and buffer.readu8(data, pos - 1) == buffer.readu8(data, matchPos - 1) do
 				literalCount = literalCount - 1
 				pos = pos - 1
 				matchPos = matchPos - 1

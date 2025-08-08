@@ -94,7 +94,7 @@ local function compress(data, acceleration)
 			local matchOffset = pos - matchPos
 
 			-- Try to extend backwards
-			while literalCount > 0 and string_byte(data, pos - 1) == string_byte(data, matchPos - 1) do
+			while literalCount > 0 and matchPos > 0 and string_byte(data, pos - 1) == string_byte(data, matchPos - 1) do
 				literalCount = literalCount - 1
 				pos = pos - 1
 				matchPos = matchPos - 1
