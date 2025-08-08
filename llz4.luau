@@ -7,7 +7,8 @@ local MISS_COUNTER_BITS = 6 -- Lower values = the step is incremented sooner
 local HASH_SHIFT = 32 - 16  -- 32 - # of bits in the hash
 local MAX_DISTANCE = 0xFFFF -- Maximum offset that can fit into two bytes
 
-local MAX_COMPRESSION_GROWTH = 1 + 1/250
+local COMPRESSION_GROWTH = 1 + 1/255 -- Asymptotic growth ratio of incompressible data
+local BUFFER_SIZE_PADDING = 16
 local DEFAULT_BUFFER_SIZE = 512 * 1024^1 -- 512 KiB
 local DEFAULT_MAX_BUFFER_SIZE = 2^31 -- BIG
 
@@ -58,7 +59,7 @@ local function compressBuffer(data, dataStart, dataLen, acceleration)
 	acceleration = checkAcceleration(acceleration, 4, "compressBuffer")
 
 	local hashTable = {}
-	local out, outNext = buffer.create(math.ceil(dataLen * MAX_COMPRESSION_GROWTH)), 0
+	local out, outNext = buffer.create(math.ceil(dataLen * COMPRESSION_GROWTH) + BUFFER_SIZE_PADDING), 0
 
 	local pos = dataStart -- 0-indexed
 	local nextUnencodedPos = pos -- Sometimes called the "anchor" in other implementations
