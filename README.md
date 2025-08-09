@@ -163,3 +163,8 @@ Note that `llz4` may produce slightly different compressed strings depending on 
 
 \* table overflow
 </details>
+
+
+## Testing
+
+Tests use [lz4's `datagen` utility](https://github.com/lz4/lz4/tree/dev/tests). First, build it and copy/symlink it into the llz4 project directory. Then, run `scripts/test.sh`.
