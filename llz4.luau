@@ -18,12 +18,12 @@ local MATCH_LEN_BITS = 4
 local MATCH_LEN_MASK = lshift(1, MATCH_LEN_BITS) - 1
 
 
-local function checkType(value, typ, argNum, funcName)
+local function checkType(value: unknown, typ: string, argNum: number, funcName: string)
 	local actual = typeof(value)
 	assert(actual == typ, `bad argument #{argNum} to '{funcName}' ({typ} expected, got {actual})`)
 end
 
-local function checkData(data, dataStart, dataLen, funcName)
+local function checkData(data: buffer, dataStart: number, dataLen: number, funcName: string)
 	checkType(data, "buffer", 1, funcName)
 	checkType(dataStart, "number", 2, funcName)
 	checkType(dataLen, "number", 3, funcName)
@@ -32,8 +32,9 @@ local function checkData(data, dataStart, dataLen, funcName)
 	assert(dataStart + dataLen <= buffer.len(data), "data range not in buffer")
 end
 
-local function checkAcceleration(acceleration, argNum, funcName)
+local function checkAcceleration(acceleration: number?, argNum: number, funcName: string): number
 	acceleration = acceleration or 1
+	assert(acceleration, "luau analysis hint")
 	checkType(acceleration, "number", argNum, funcName)
 	assert(acceleration >= 1 and acceleration % 1 == 0, "acceleration must be an integer >= 1")
 	return acceleration
@@ -54,7 +55,7 @@ end
 	@return buffer A buffer containing the compressed data at offset 0.
 	@return number The length of the compressed data.
 ]]
-local function compressBuffer(data, dataStart, dataLen, acceleration)
+local function compressBuffer(data: buffer, dataStart: number, dataLen: number, acceleration: number?): (buffer, number)
 	checkData(data, dataStart, dataLen, "compressBuffer")
 	acceleration = checkAcceleration(acceleration, 4, "compressBuffer")
 
@@ -192,7 +193,7 @@ end
 	  the cost of compression efficiency.
 	@return string The compressed data as a string.
 ]]
-local function compressString(str, acceleration)
+local function compressString(str: string, acceleration: number?): string
 	checkType(str, "string", 1, "compressString")
 	acceleration = checkAcceleration(acceleration, 2, "compressString")
 
@@ -200,8 +201,7 @@ local function compressString(str, acceleration)
 	return buffer.readstring(buf, 0, len)
 end
 
-
-local function expandBuffer(out, maxLen)
+local function expandBuffer(out: buffer, maxLen: number)
 	local curLen = buffer.len(out)
 	if curLen >= maxLen then
 		return nil, "maximum decompressed length was exceeded"
@@ -231,12 +231,12 @@ end
 	@return buffer A buffer containing the decompressed data at offset 0.
 	@return number The length of the decompressed data.
 ]]
-local function decompressBuffer(data, dataStart, dataLen, decompressedLen)
-	checkData(data, dataStart, dataLen)
+local function decompressBuffer(data: buffer, dataStart: number, dataLen: number, decompressedLen: number?): (buffer, number)
+	checkData(data, dataStart, dataLen, "decompressBuffer")
 	decompressedLen = decompressedLen or -DEFAULT_MAX_BUFFER_SIZE
 	checkType(decompressedLen, "number", 4, "decompressBuffer")
 
-	local maxLen = math.abs(decompressedLen)
+	local maxLen = math.abs(decompressedLen :: number)
 	local outLen = (decompressedLen >= 0) and decompressedLen or DEFAULT_BUFFER_SIZE
 	local out, outNext = buffer.create(outLen), 0
 
@@ -320,7 +320,7 @@ end
 	  output buffer will be dynamically resized with no upper bound.
 	@return string The decompressed string.
 ]]
-local function decompressString(str, decompressedLen)
+local function decompressString(str: string, decompressedLen: number?): string
 	checkType(str, "string", 1, "decompressString")
 	decompressedLen = decompressedLen or -DEFAULT_MAX_BUFFER_SIZE
 	checkType(decompressedLen, "number", 4, "decompressBuffer")
